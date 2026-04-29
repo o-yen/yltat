@@ -1,0 +1,26 @@
+<?php
+
+return [
+    'failed' => 'E-mel atau kata laluan tidak betul.',
+    'password' => 'Kata laluan tidak betul.',
+    'throttle' => 'Terlalu banyak percubaan log masuk. Cuba lagi dalam :seconds saat.',
+    'account_inactive' => 'Akaun anda tidak aktif. Sila hubungi pentadbir.',
+    'logged_out' => 'Anda telah berjaya log keluar.',
+    'login' => 'Log Masuk',
+    'logout' => 'Log Keluar',
+    'email' => 'E-mel',
+    'password_label' => 'Kata Laluan',
+    'remember_me' => 'Ingat Saya',
+    'login_title' => 'Log Masuk ke SPB-YLTAT',
+    'login_subtitle' => 'Sistem Pemantauan Bakat YLTAT',
+    'forgot_password' => 'Lupa Kata Laluan',
+    'back_to_login' => 'Kembali ke Log Masuk',
+    'email_not_found' => 'Tiada akaun aktif dijumpai dengan alamat e-mel ini.',
+    'session_expired' => 'Sesi tamat tempoh. Sila mulakan semula.',
+    'fp_step_email' => 'E-mel',
+    'fp_step_otp' => 'OTP',
+    'fp_step_reset' => 'Set Semula',
+    'fp_email_hint' => 'Masukkan alamat e-mel berdaftar anda. Kami akan menghantar kod pengesahan untuk menetapkan semula kata laluan anda.',
+    'fp_send_otp' => 'Hantar Kod Pengesahan',
+    'fp_otp_sent_to' => 'Kod pengesahan 6 digit telah dihantar ke :email. Sila semak peti masuk dan folder spam anda.',
+];

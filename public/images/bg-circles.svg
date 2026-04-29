@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#274670" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.06"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#C8102E" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#f97316" stop-opacity="0.04"/>
+    </linearGradient>
+    <linearGradient id="g3" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#274670" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#06b6d4" stop-opacity="0.05"/>
+    </linearGradient>
+    <linearGradient id="g4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C8102E" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#274670" stop-opacity="0.03"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Large circle bottom-left -->
+  <circle cx="-50" cy="900" r="420" fill="url(#g1)" />
+  <circle cx="-50" cy="900" r="380" fill="none" stroke="#274670" stroke-opacity="0.06" stroke-width="2"/>
+  <circle cx="-50" cy="900" r="340" fill="none" stroke="#274670" stroke-opacity="0.04" stroke-width="1.5"/>
+  <circle cx="-50" cy="900" r="300" fill="none" stroke="#274670" stroke-opacity="0.03" stroke-width="1"/>
+
+  <!-- Large circle top-right -->
+  <circle cx="1800" cy="80" r="350" fill="url(#g3)" />
+  <circle cx="1800" cy="80" r="310" fill="none" stroke="#274670" stroke-opacity="0.06" stroke-width="2"/>
+  <circle cx="1800" cy="80" r="270" fill="none" stroke="#274670" stroke-opacity="0.04" stroke-width="1.5"/>
+  <circle cx="1800" cy="80" r="230" fill="none" stroke="#274670" stroke-opacity="0.03" stroke-width="1"/>
+
+  <!-- Medium circle top-left -->
+  <circle cx="200" cy="-60" r="240" fill="url(#g2)" />
+  <circle cx="200" cy="-60" r="200" fill="none" stroke="#C8102E" stroke-opacity="0.05" stroke-width="1.5"/>
+  <circle cx="200" cy="-60" r="165" fill="none" stroke="#C8102E" stroke-opacity="0.03" stroke-width="1"/>
+
+  <!-- Medium circle right side -->
+  <circle cx="1650" cy="650" r="200" fill="url(#g4)" />
+  <circle cx="1650" cy="650" r="170" fill="none" stroke="#274670" stroke-opacity="0.05" stroke-width="1.5"/>
+  <circle cx="1650" cy="650" r="140" fill="none" stroke="#274670" stroke-opacity="0.04" stroke-width="1"/>
+
+  <!-- Small decorative circles -->
+  <circle cx="350" cy="350" r="80" fill="url(#g1)" />
+  <circle cx="350" cy="350" r="65" fill="none" stroke="#274670" stroke-opacity="0.06" stroke-width="1.5"/>
+  <circle cx="350" cy="350" r="50" fill="none" stroke="#274670" stroke-opacity="0.04" stroke-width="1"/>
+
+  <circle cx="1400" cy="400" r="60" fill="url(#g2)" />
+  <circle cx="1400" cy="400" r="48" fill="none" stroke="#C8102E" stroke-opacity="0.05" stroke-width="1"/>
+
+  <circle cx="960" cy="120" r="45" fill="url(#g3)" />
+  <circle cx="960" cy="120" r="35" fill="none" stroke="#274670" stroke-opacity="0.05" stroke-width="1"/>
+
+  <circle cx="700" cy="800" r="55" fill="url(#g4)" />
+  <circle cx="700" cy="800" r="42" fill="none" stroke="#274670" stroke-opacity="0.04" stroke-width="1"/>
+
+  <circle cx="1200" cy="900" r="35" fill="url(#g1)" />
+
+  <!-- Tiny dot accents -->
+  <circle cx="500" cy="200" r="8" fill="#274670" fill-opacity="0.08"/>
+  <circle cx="1100" cy="300" r="6" fill="#C8102E" fill-opacity="0.06"/>
+  <circle cx="800" cy="600" r="10" fill="#274670" fill-opacity="0.05"/>
+  <circle cx="1500" cy="200" r="7" fill="#274670" fill-opacity="0.07"/>
+  <circle cx="300" cy="700" r="5" fill="#C8102E" fill-opacity="0.05"/>
+  <circle cx="1000" cy="950" r="9" fill="#274670" fill-opacity="0.06"/>
+
+  <!-- Concentric ring decorations -->
+  <g transform="translate(1100, 700)">
+    <circle r="90" fill="none" stroke="#274670" stroke-opacity="0.04" stroke-width="1"/>
+    <circle r="75" fill="none" stroke="#274670" stroke-opacity="0.03" stroke-width="1"/>
+    <circle r="60" fill="none" stroke="#274670" stroke-opacity="0.025" stroke-width="1"/>
+  </g>
+
+  <g transform="translate(550, 550)">
+    <circle r="70" fill="none" stroke="#C8102E" stroke-opacity="0.03" stroke-width="1"/>
+    <circle r="55" fill="none" stroke="#C8102E" stroke-opacity="0.025" stroke-width="1"/>
+  </g>
+
+  <!-- Half-tone dot pattern on large circles -->
+  <g opacity="0.03">
+    <circle cx="-20" cy="870" r="3" fill="#274670"/>
+    <circle cx="10" cy="850" r="3" fill="#274670"/>
+    <circle cx="40" cy="830" r="2.5" fill="#274670"/>
+    <circle cx="70" cy="810" r="2.5" fill="#274670"/>
+    <circle cx="-10" cy="840" r="2" fill="#274670"/>
+    <circle cx="20" cy="820" r="2" fill="#274670"/>
+    <circle cx="50" cy="860" r="2.5" fill="#274670"/>
+    <circle cx="80" cy="880" r="2" fill="#274670"/>
+    <circle cx="-40" cy="860" r="3" fill="#274670"/>
+    <circle cx="0" cy="900" r="2.5" fill="#274670"/>
+    <circle cx="30" cy="890" r="2" fill="#274670"/>
+    <circle cx="60" cy="850" r="3" fill="#274670"/>
+  </g>
+</svg>

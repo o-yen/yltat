@@ -1,0 +1,12 @@
+-- Put your full SQL export here and rename this file to `original_dump.sql`.
+-- `php artisan migrate:fresh --seed --force` will then import only the
+-- INSERT/REPLACE/UPDATE statements from the dump after migrations finish.
+--
+-- Supported pattern:
+--   - mysqldump/phpMyAdmin exports that contain INSERT INTO ... statements
+--   - optional CREATE TABLE / ALTER TABLE / SET / LOCK statements are ignored
+--
+-- Example:
+-- INSERT INTO `roles` (`id`, `role_name`) VALUES
+-- (1, 'super_admin');
+

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 40" fill="none">
+  <!-- Weststar "W" mark -->
+  <rect x="0" y="4" width="32" height="32" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+  <path d="M7 12 L11 26 L16 16 L21 26 L25 12" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Company text -->
+  <text x="40" y="18" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="700" fill="white" letter-spacing="0.5">WESTSTAR</text>
+  <text x="40" y="31" font-family="Inter, system-ui, sans-serif" font-size="8.5" font-weight="400" fill="rgba(255,255,255,0.7)" letter-spacing="0.3">Engineering Sdn Bhd</text>
+</svg>

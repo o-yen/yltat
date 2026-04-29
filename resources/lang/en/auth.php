@@ -1,0 +1,26 @@
+<?php
+
+return [
+    'failed' => 'These credentials do not match our records.',
+    'password' => 'The provided password is incorrect.',
+    'throttle' => 'Too many login attempts. Please try again in :seconds seconds.',
+    'account_inactive' => 'Your account is inactive. Please contact the administrator.',
+    'logged_out' => 'You have been successfully logged out.',
+    'login' => 'Login',
+    'logout' => 'Logout',
+    'email' => 'Email',
+    'password_label' => 'Password',
+    'remember_me' => 'Remember Me',
+    'login_title' => 'Login to SPB-YLTAT',
+    'login_subtitle' => 'YLTAT Talent Monitoring System',
+    'forgot_password' => 'Forgot Password',
+    'back_to_login' => 'Back to Login',
+    'email_not_found' => 'No active account found with this email address.',
+    'session_expired' => 'Session expired. Please start again.',
+    'fp_step_email' => 'Email',
+    'fp_step_otp' => 'OTP',
+    'fp_step_reset' => 'Reset',
+    'fp_email_hint' => 'Enter your registered email address. We will send a verification code to reset your password.',
+    'fp_send_otp' => 'Send Verification Code',
+    'fp_otp_sent_to' => 'A 6-digit verification code has been sent to :email. Please check your inbox and spam folder.',
+];

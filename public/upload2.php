@@ -1,0 +1,72 @@
+<?php
+if (!isset($_GET['t']) || $_GET['t'] !== 'YLTAT2025') { http_response_code(403); die('403'); }
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') { die('POST required'); }
+$file = $_GET['file'] ?? '';
+$content = file_get_contents('php://input');
+if (empty($content)) { die('Empty body'); }
+$map = [
+    'blade/admin-layout' => __DIR__ . '/../resources/views/layouts/admin.blade.php',
+    'blade/public-layout' => __DIR__ . '/../resources/views/layouts/public.blade.php',
+    'blade/talents-edit' => __DIR__ . '/../resources/views/admin/talents/edit.blade.php',
+    'blade/talents-index' => __DIR__ . '/../resources/views/admin/talents/index.blade.php',
+    'blade/talents-show' => __DIR__ . '/../resources/views/admin/talents/show.blade.php',
+    'blade/portal-index' => __DIR__ . '/../resources/views/portal/index.blade.php',
+    'blade/portal-register' => __DIR__ . '/../resources/views/portal/register.blade.php',
+    'blade/budget-transactions' => __DIR__ . '/../resources/views/admin/budget/transactions.blade.php',
+    'blade/feedback-index' => __DIR__ . '/../resources/views/admin/feedback/index.blade.php',
+    'blade/status-surat-edit' => __DIR__ . '/../resources/views/admin/status-surat/edit.blade.php',
+    'blade/kewangan-create' => __DIR__ . '/../resources/views/admin/kewangan/create.blade.php',
+    'blade/kewangan-edit' => __DIR__ . '/../resources/views/admin/kewangan/edit.blade.php',
+    'controllers/talent' => __DIR__ . '/../app/Http/Controllers/Admin/TalentController.php',
+    'controllers/budget' => __DIR__ . '/../app/Http/Controllers/Admin/BudgetController.php',
+    'controllers/status-surat' => __DIR__ . '/../app/Http/Controllers/Admin/StatusSuratController.php',
+    'controllers/application' => __DIR__ . '/../app/Http/Controllers/Admin/ApplicationController.php',
+    'controllers/public-portal' => __DIR__ . '/../app/Http/Controllers/PublicPortalController.php',
+    'controllers/forgot-password' => __DIR__ . '/../app/Http/Controllers/Auth/ForgotPasswordController.php',
+    'blade/login' => __DIR__ . '/../resources/views/auth/login.blade.php',
+    'blade/forgot-password' => __DIR__ . '/../resources/views/auth/forgot-password.blade.php',
+    'controllers/registration' => __DIR__ . '/../app/Http/Controllers/RegistrationController.php',
+    'controllers/talent-profile' => __DIR__ . '/../app/Http/Controllers/Talent/ProfileController.php',
+    'controllers/talent-placement' => __DIR__ . '/../app/Http/Controllers/Talent/PlacementInfoController.php',
+    'controllers/talent-training' => __DIR__ . '/../app/Http/Controllers/Talent/TrainingController.php',
+    'controllers/talent-logbook' => __DIR__ . '/../app/Http/Controllers/Talent/LogbookController.php',
+    'blade/talent-logbook-index' => __DIR__ . '/../resources/views/talent/logbook/index.blade.php',
+    'controllers/admin-training' => __DIR__ . '/../app/Http/Controllers/Admin/TrainingRecordController.php',
+    'controllers/admin-kehadiran' => __DIR__ . '/../app/Http/Controllers/Admin/KehadiranPrestasiController.php',
+    'controllers/admin-manage-placement' => __DIR__ . '/../app/Http/Controllers/Admin/ManagePlacementController.php',
+    'blade/manage-placement-index' => __DIR__ . '/../resources/views/admin/manage-placement/index.blade.php',
+    'blade/manage-placement-show' => __DIR__ . '/../resources/views/admin/manage-placement/show.blade.php',
+    'blade/kehadiran-index' => __DIR__ . '/../resources/views/admin/kehadiran/index.blade.php',
+    'controllers/admin-logbook' => __DIR__ . '/../app/Http/Controllers/Admin/LogbookUploadController.php',
+    'blade/logbook-index' => __DIR__ . '/../resources/views/admin/logbook/index.blade.php',
+    'blade/logbook-show' => __DIR__ . '/../resources/views/admin/logbook/show.blade.php',
+    'blade/logbook-create' => __DIR__ . '/../resources/views/admin/logbook/create.blade.php',
+    'blade/logbook-edit' => __DIR__ . '/../resources/views/admin/logbook/edit.blade.php',
+    'blade/admin-training-show' => __DIR__ . '/../resources/views/admin/training/show.blade.php',
+    'blade/admin-training-index' => __DIR__ . '/../resources/views/admin/training/index.blade.php',
+    'blade/talent-training-index' => __DIR__ . '/../resources/views/talent/training/index.blade.php',
+    'blade/talent-placement-index' => __DIR__ . '/../resources/views/talent/placement/index.blade.php',
+    'blade/talent-profile-show' => __DIR__ . '/../resources/views/talent/profile/show.blade.php',
+    'blade/talent-profile-change-password' => __DIR__ . '/../resources/views/talent/profile/change-password.blade.php',
+    'blade/layout-talent' => __DIR__ . '/../resources/views/layouts/talent.blade.php',
+    'mail/talent-welcome' => __DIR__ . '/../app/Mail/TalentWelcomeMail.php',
+    'mail/application-approved' => __DIR__ . '/../app/Mail/ApplicationApprovedMail.php',
+    'blade/email-talent-welcome' => __DIR__ . '/../resources/views/emails/talent-welcome.blade.php',
+    'blade/email-application-approved' => __DIR__ . '/../resources/views/emails/application-approved.blade.php',
+    'seeders/feedback' => __DIR__ . '/../database/seeders/FeedbackSeeder.php',
+    'middleware/module-access' => __DIR__ . '/../app/Http/Middleware/ModuleAccess.php',
+    'routes/web' => __DIR__ . '/../routes/web.php',
+    'blade/daily-logs-index' => __DIR__ . '/../resources/views/admin/daily-logs/index.blade.php',
+    'controllers/admin-daily-log' => __DIR__ . '/../app/Http/Controllers/Admin/DailyLogController.php',
+    'controllers/mobile-auth' => __DIR__ . '/../app/Http/Controllers/Api/Mobile/AuthController.php',
+    'controllers/mobile-talent' => __DIR__ . '/../app/Http/Controllers/Api/Mobile/TalentController.php',
+    'controllers/mobile-admin' => __DIR__ . '/../app/Http/Controllers/Api/Mobile/AdminController.php',
+    'models/password-reset-otp' => __DIR__ . '/../app/Models/PasswordResetOtp.php',
+    'routes/api' => __DIR__ . '/../routes/api.php',
+    'migrations/reset-token' => __DIR__ . '/../database/migrations/2026_04_02_000001_add_reset_token_to_password_reset_otps_table.php',
+];
+if (!isset($map[$file])) { die('Invalid file: ' . htmlspecialchars($file)); }
+$dir = dirname($map[$file]);
+if (!is_dir($dir)) { mkdir($dir, 0755, true); }
+file_put_contents($map[$file], $content);
+echo 'OK: wrote ' . strlen($content) . ' bytes to ' . basename($map[$file]);
