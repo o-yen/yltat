@@ -12,8 +12,16 @@ class ApplicantRequestController extends Controller
     public function index(Request $request)
     {
         $query = ApplicantRequest::query()
-            ->with(['talent', 'placementCompany', 'requestedBy', 'reviewedBy'])
+            ->with(['talent', 'implementingCompany', 'placementCompany', 'requestedBy', 'reviewedBy'])
             ->latest();
+
+        $user = $request->user();
+        $role = $user?->role?->role_name;
+
+        if ($role === 'syarikat_pelaksana') {
+            abort_unless($user->id_pelaksana, 403);
+            $query->where('implementing_company_id', $user->id_pelaksana);
+        }
 
         if ($request->filled('status')) {
             $query->where('status', $request->string('status')->toString());
@@ -26,6 +34,10 @@ class ApplicantRequestController extends Controller
                     $talentQuery->where('full_name', 'like', "%{$search}%")
                         ->orWhere('id_graduan', 'like', "%{$search}%")
                         ->orWhere('email', 'like', "%{$search}%");
+                })->orWhereHas('implementingCompany', function ($companyQuery) use ($search) {
+                    $companyQuery->where('nama_syarikat', 'like', "%{$search}%")
+                        ->orWhere('id_pelaksana', 'like', "%{$search}%")
+                        ->orWhere('pic_syarikat', 'like', "%{$search}%");
                 })->orWhereHas('placementCompany', function ($companyQuery) use ($search) {
                     $companyQuery->where('nama_syarikat', 'like', "%{$search}%")
                         ->orWhere('id_syarikat', 'like', "%{$search}%")
@@ -36,36 +48,39 @@ class ApplicantRequestController extends Controller
 
         $requests = $query->paginate(20)->withQueryString();
         $counts = [
-            'pending' => ApplicantRequest::where('status', 'pending')->count(),
-            'approved' => ApplicantRequest::where('status', 'approved')->count(),
-            'rejected' => ApplicantRequest::where('status', 'rejected')->count(),
+            'pending' => $this->visibleRequests($user)->where('status', 'pending')->count(),
+            'approved' => $this->visibleRequests($user)->where('status', 'approved')->count(),
+            'rejected' => $this->visibleRequests($user)->where('status', 'rejected')->count(),
         ];
 
-        return view('admin.applicant-requests.index', compact('requests', 'counts'));
+        $canReview = $user?->hasAnyRole(['super_admin', 'pmo_admin']);
+
+        return view('admin.applicant-requests.index', compact('requests', 'counts', 'canReview'));
     }
 
     public function storeFromPortal(Request $request, Talent $talent)
     {
-        abort_unless(auth()->check() && auth()->user()->hasRole('rakan_kolaborasi'), 403);
+        abort_unless(auth()->check() && auth()->user()->hasRole('syarikat_pelaksana'), 403);
 
         if (!$talent->public_visibility) {
             abort(404);
         }
 
         $user = auth()->user();
-        $placementCompany = $user->syarikatPenempatan;
+        $implementingCompany = $user->syarikatPelaksana;
 
-        if (!$placementCompany) {
-            return back()->with('error', 'Placement company information is not linked to your account.');
+        if (!$implementingCompany) {
+            return back()->with('error', 'Implementing company information is not linked to your account.');
         }
 
         ApplicantRequest::updateOrCreate(
             [
                 'talent_id' => $talent->id,
-                'placement_company_id' => $placementCompany->id_syarikat,
+                'implementing_company_id' => $implementingCompany->id_pelaksana,
             ],
             [
                 'requested_by_user_id' => $user->id,
+                'placement_company_id' => null,
                 'status' => 'pending',
                 'request_message' => $request->input('request_message'),
                 'review_notes' => null,
@@ -79,15 +94,27 @@ class ApplicantRequestController extends Controller
 
     public function approve(ApplicantRequest $applicantRequest)
     {
+        abort_unless(auth()->user()?->hasAnyRole(['super_admin', 'pmo_admin']), 403);
+
         if ($applicantRequest->status === 'approved') {
             return back()->with('success', 'Applicant request is already approved.');
         }
 
-        $applicantRequest->talent()->update([
-            'id_syarikat_penempatan' => $applicantRequest->placement_company_id,
-            'status' => 'assigned',
-            'status_aktif' => 'Aktif',
-        ]);
+        if ($applicantRequest->implementing_company_id) {
+            $applicantRequest->talent()->update([
+                'id_pelaksana' => $applicantRequest->implementing_company_id,
+                'status' => 'approved',
+                'status_aktif' => 'Aktif',
+            ]);
+        } elseif ($applicantRequest->placement_company_id) {
+            $applicantRequest->talent()->update([
+                'id_syarikat_penempatan' => $applicantRequest->placement_company_id,
+                'status' => 'assigned',
+                'status_aktif' => 'Aktif',
+            ]);
+        } else {
+            return back()->with('error', 'This request is missing company information and cannot be approved.');
+        }
 
         $applicantRequest->update([
             'status' => 'approved',
@@ -100,6 +127,8 @@ class ApplicantRequestController extends Controller
 
     public function reject(Request $request, ApplicantRequest $applicantRequest)
     {
+        abort_unless(auth()->user()?->hasAnyRole(['super_admin', 'pmo_admin']), 403);
+
         $request->validate([
             'review_notes' => ['nullable', 'string', 'max:500'],
         ]);
@@ -112,5 +141,16 @@ class ApplicantRequestController extends Controller
         ]);
 
         return back()->with('success', 'Applicant request rejected successfully.');
+    }
+
+    private function visibleRequests($user)
+    {
+        $query = ApplicantRequest::query();
+
+        if ($user?->hasRole('syarikat_pelaksana')) {
+            return $query->where('implementing_company_id', $user->id_pelaksana);
+        }
+
+        return $query;
     }
 }

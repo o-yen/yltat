@@ -95,10 +95,13 @@ class ManagePlacementController extends Controller
         // Budget transactions
         $budgetTransactions = $talent->budgetTransactions()->orderByDesc('transaction_date')->get();
 
+        $role = auth()->user()->role?->role_name;
         $canWrite = in_array(
             \App\Http\Middleware\ModuleAccess::levelFor(auth()->user()->role?->role_name, 'placements'),
             ['full', 'edit', 'own', 'create']
         );
+        $canAssign = in_array($role, ['super_admin', 'pmo_admin', 'syarikat_pelaksana'], true);
+        $canOverridePelaksana = in_array($role, ['super_admin', 'pmo_admin'], true);
 
         $isAssigned = !empty($talent->id_syarikat_penempatan);
         $pelaksana = SyarikatPelaksana::orderBy('nama_syarikat')->get();
@@ -107,7 +110,7 @@ class ManagePlacementController extends Controller
         return view('admin.manage-placement.show', compact(
             'talent', 'logbooks', 'dailyLogs', 'transactions', 'trainings',
             'suratRecords', 'feedbacks', 'budgetTransactions', 'canWrite',
-            'isAssigned', 'pelaksana', 'penempatan'
+            'canAssign', 'canOverridePelaksana', 'isAssigned', 'pelaksana', 'penempatan'
         ));
     }
 
@@ -145,6 +148,19 @@ class ManagePlacementController extends Controller
     {
         $this->authorizeAccess($talent);
 
+        $user = auth()->user();
+        $role = $user->role?->role_name;
+
+        if (!in_array($role, ['super_admin', 'pmo_admin', 'syarikat_pelaksana'], true)) {
+            abort(403, 'Only Admin / PMO or the implementing company can assign approved talents.');
+        }
+
+        if ($role === 'syarikat_pelaksana') {
+            if (!$user->id_pelaksana || $talent->id_pelaksana !== $user->id_pelaksana) {
+                abort(403, 'You can only assign talents approved for your implementation company.');
+            }
+        }
+
         $request->validate([
             'id_pelaksana' => 'nullable|string',
             'id_syarikat_penempatan' => 'required|string|exists:syarikat_penempatan,id_syarikat',
@@ -159,9 +175,12 @@ class ManagePlacementController extends Controller
         ]);
 
         $old = $talent->toArray();
+        $pelaksanaId = in_array($role, ['super_admin', 'pmo_admin'], true)
+            ? ($request->id_pelaksana ?: $talent->id_pelaksana)
+            : $talent->id_pelaksana;
 
         $updateData = [
-            'id_pelaksana' => $request->id_pelaksana,
+            'id_pelaksana' => $pelaksanaId,
             'id_syarikat_penempatan' => $request->id_syarikat_penempatan,
             'jawatan' => $request->jawatan,
             'tarikh_mula' => $request->tarikh_mula,

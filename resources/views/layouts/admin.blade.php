@@ -270,7 +270,7 @@
                 </svg>
             </a>
 
-            @if(in_array($role, ['super_admin', 'pmo_admin']))
+            @if(in_array($role, ['super_admin', 'pmo_admin', 'mindef_viewer', 'syarikat_pelaksana']))
             <a href="{{ route('admin.applicant-requests.index') }}"
                class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 text-sm transition-all {{ request()->routeIs('admin.applicant-requests.*') ? 'active' : '' }}">
                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

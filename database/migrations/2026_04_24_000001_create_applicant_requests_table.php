@@ -11,11 +11,16 @@ return new class extends Migration
         Schema::create('applicant_requests', function (Blueprint $table) {
             $table->id();
             $table->foreignId('talent_id')->constrained('talents')->cascadeOnDelete();
-            $table->string('placement_company_id');
+            $table->string('implementing_company_id')->nullable();
+            $table->foreign('implementing_company_id')
+                ->references('id_pelaksana')
+                ->on('syarikat_pelaksana')
+                ->nullOnDelete();
+            $table->string('placement_company_id')->nullable();
             $table->foreign('placement_company_id')
                 ->references('id_syarikat')
                 ->on('syarikat_penempatan')
-                ->cascadeOnDelete();
+                ->nullOnDelete();
             $table->foreignId('requested_by_user_id')->constrained('users')->cascadeOnDelete();
             $table->string('status')->default('pending');
             $table->text('request_message')->nullable();
@@ -24,7 +29,9 @@ return new class extends Migration
             $table->timestamp('reviewed_at')->nullable();
             $table->timestamps();
 
+            $table->unique(['talent_id', 'implementing_company_id']);
             $table->unique(['talent_id', 'placement_company_id']);
+            $table->index(['implementing_company_id', 'status']);
             $table->index(['placement_company_id', 'status']);
             $table->index(['status', 'created_at']);
         });

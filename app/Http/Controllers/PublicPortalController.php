@@ -114,17 +114,17 @@ class PublicPortalController extends Controller
 
     private function requestStatusesForTalents(array $talentIds): array
     {
-        if (empty($talentIds) || !auth()->check() || !auth()->user()->hasRole('rakan_kolaborasi')) {
+        if (empty($talentIds) || !auth()->check() || !auth()->user()->hasRole('syarikat_pelaksana')) {
             return [];
         }
 
-        $placementCompanyId = auth()->user()->id_syarikat_penempatan;
-        if (empty($placementCompanyId)) {
+        $implementingCompanyId = auth()->user()->id_pelaksana;
+        if (empty($implementingCompanyId)) {
             return [];
         }
 
         return ApplicantRequest::query()
-            ->where('placement_company_id', $placementCompanyId)
+            ->where('implementing_company_id', $implementingCompanyId)
             ->whereIn('talent_id', $talentIds)
             ->get(['talent_id', 'status'])
             ->pluck('status', 'talent_id')

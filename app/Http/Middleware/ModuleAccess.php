@@ -111,9 +111,11 @@ class ModuleAccess
             'pmo_admin'   => 'full',
         ],
         'placements' => [
-            'super_admin'   => 'full',
-            'pmo_admin'     => 'full',
-            'mindef_viewer' => 'view',
+            'super_admin'        => 'full',
+            'pmo_admin'          => 'full',
+            'mindef_viewer'      => 'view',
+            'syarikat_pelaksana' => 'edit',
+            'rakan_kolaborasi'   => 'view',
         ],
     ];
 

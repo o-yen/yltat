@@ -49,7 +49,7 @@ Route::get('/portal/daftar/berjaya', [RegistrationController::class, 'success'])
 Route::get('/portal/api/suggestions', [PublicPortalController::class, 'suggestions'])->name('portal.suggestions');
 Route::get('/portal/{talent}', [PublicPortalController::class, 'show'])->name('portal.show');
 Route::post('/portal/{talent}/request-applicant', [ApplicantRequestController::class, 'storeFromPortal'])
-    ->middleware(['auth', 'role:rakan_kolaborasi'])
+    ->middleware(['auth', 'role:syarikat_pelaksana'])
     ->name('portal.request-applicant');
 
 // ========================
@@ -184,8 +184,8 @@ Route::middleware(['auth', 'role:super_admin,pmo_admin,mindef_viewer,syarikat_pe
     Route::put('/placements/{placement}', [PlacementController::class, 'update'])->name('placements.update')->middleware('module:placements,write');
 
     // Manage Placement
-    Route::get('/manage-placement', [\App\Http\Controllers\Admin\ManagePlacementController::class, 'index'])->name('manage-placement.index');
-    Route::get('/manage-placement/{talent}', [\App\Http\Controllers\Admin\ManagePlacementController::class, 'show'])->name('manage-placement.show');
+    Route::get('/manage-placement', [\App\Http\Controllers\Admin\ManagePlacementController::class, 'index'])->name('manage-placement.index')->middleware('module:placements');
+    Route::get('/manage-placement/{talent}', [\App\Http\Controllers\Admin\ManagePlacementController::class, 'show'])->name('manage-placement.show')->middleware('module:placements');
     Route::post('/manage-placement/{talent}/feedback', [\App\Http\Controllers\Admin\ManagePlacementController::class, 'storeFeedback'])->name('manage-placement.feedback');
     Route::post('/manage-placement/{talent}/assign', [\App\Http\Controllers\Admin\ManagePlacementController::class, 'assignPlacement'])->name('manage-placement.assign');
     Route::post('/manage-placement/{talent}/complete', [\App\Http\Controllers\Admin\ManagePlacementController::class, 'completePlacement'])->name('manage-placement.complete');
@@ -227,7 +227,7 @@ Route::middleware(['auth', 'role:super_admin,pmo_admin,mindef_viewer,syarikat_pe
     Route::post('/permohonan/{talent}/reject', [ApplicationController::class, 'reject'])->name('applications.reject')->middleware('module:applications,write');
 
     // Applicant Requests
-    Route::get('/applicant-requests', [ApplicantRequestController::class, 'index'])->name('applicant-requests.index')->middleware('role:super_admin,pmo_admin');
+    Route::get('/applicant-requests', [ApplicantRequestController::class, 'index'])->name('applicant-requests.index')->middleware('role:super_admin,pmo_admin,mindef_viewer,syarikat_pelaksana');
     Route::post('/applicant-requests/{applicantRequest}/approve', [ApplicantRequestController::class, 'approve'])->name('applicant-requests.approve')->middleware('role:super_admin,pmo_admin');
     Route::post('/applicant-requests/{applicantRequest}/reject', [ApplicantRequestController::class, 'reject'])->name('applicant-requests.reject')->middleware('role:super_admin,pmo_admin');
 

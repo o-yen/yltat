@@ -148,7 +148,7 @@
                         @endif
                     </div>
                     </a>
-                    @if(auth()->check() && auth()->user()->role?->role_name === 'rakan_kolaborasi')
+                    @if(auth()->check() && auth()->user()->role?->role_name === 'syarikat_pelaksana')
                         <div class="flex items-center justify-between gap-3 border-t border-slate-100 px-4 py-4">
                             @if($requestStatus)
                                 <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold

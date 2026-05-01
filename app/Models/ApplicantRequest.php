@@ -11,6 +11,7 @@ class ApplicantRequest extends Model
 
     protected $fillable = [
         'talent_id',
+        'implementing_company_id',
         'placement_company_id',
         'requested_by_user_id',
         'status',
@@ -32,6 +33,11 @@ class ApplicantRequest extends Model
     public function placementCompany()
     {
         return $this->belongsTo(SyarikatPenempatan::class, 'placement_company_id', 'id_syarikat');
+    }
+
+    public function implementingCompany()
+    {
+        return $this->belongsTo(SyarikatPelaksana::class, 'implementing_company_id', 'id_pelaksana');
     }
 
     public function requestedBy()

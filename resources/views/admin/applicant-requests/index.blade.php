@@ -25,7 +25,7 @@
             <input type="text"
                    name="search"
                    value="{{ request('search') }}"
-                   placeholder="Search applicant, graduate ID, email, company..."
+                   placeholder="Search applicant, graduate ID, email, implementing company..."
                    class="flex-1 rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-[#274670] focus:outline-none">
             <select name="status" class="rounded-xl border border-slate-200 px-4 py-3 text-sm">
                 <option value="">All Statuses</option>
@@ -43,6 +43,7 @@
                 <thead class="bg-slate-50 text-slate-600 uppercase text-xs">
                     <tr>
                         <th class="px-4 py-3 text-left">Applicant</th>
+                        <th class="px-4 py-3 text-left">Requesting Implementation Company</th>
                         <th class="px-4 py-3 text-left">Placement Company</th>
                         <th class="px-4 py-3 text-left">Requested By</th>
                         <th class="px-4 py-3 text-left">Requested At</th>
@@ -58,7 +59,11 @@
                                 <div class="text-slate-500">{{ $item->talent?->id_graduan ?? '-' }} • {{ $item->talent?->email ?? '-' }}</div>
                             </td>
                             <td class="px-4 py-4">
-                                <div class="font-medium text-slate-800">{{ $item->placementCompany?->nama_syarikat ?? '-' }}</div>
+                                <div class="font-medium text-slate-800">{{ $item->implementingCompany?->nama_syarikat ?? '-' }}</div>
+                                <div class="text-slate-500">{{ $item->implementingCompany?->id_pelaksana ?? '-' }}</div>
+                            </td>
+                            <td class="px-4 py-4">
+                                <div class="font-medium text-slate-800">{{ $item->placementCompany?->nama_syarikat ?? 'Not assigned yet' }}</div>
                                 <div class="text-slate-500">{{ $item->placementCompany?->id_syarikat ?? '-' }}</div>
                             </td>
                             <td class="px-4 py-4">
@@ -76,7 +81,7 @@
                             </td>
                             <td class="px-4 py-4">
                                 <div class="flex flex-wrap gap-2">
-                                    @if($item->status === 'pending')
+                                    @if($canReview && $item->status === 'pending')
                                         <form method="POST" action="{{ route('admin.applicant-requests.approve', $item) }}">
                                             @csrf
                                             <button type="submit" class="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white">Approve</button>
@@ -85,15 +90,17 @@
                                             @csrf
                                             <button type="submit" class="rounded-lg bg-red-600 px-3 py-2 text-xs font-semibold text-white">Reject</button>
                                         </form>
-                                    @else
+                                    @elseif($item->status !== 'pending')
                                         <span class="text-xs text-slate-500">Reviewed</span>
+                                    @else
+                                        <span class="text-xs text-slate-500">Awaiting Admin / PMO</span>
                                     @endif
                                 </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-4 py-12 text-center text-slate-500">No applicant requests found.</td>
+                            <td colspan="7" class="px-4 py-12 text-center text-slate-500">No applicant requests found.</td>
                         </tr>
                     @endforelse
                 </tbody>

@@ -73,7 +73,7 @@
                 <h3 class="text-lg font-semibold text-gray-800 mb-2">{{ __('common.no_placement_assigned') }}</h3>
                 <p class="text-sm text-gray-500 mb-6">{{ __('common.no_placement_assigned_hint') }}</p>
 
-                @if($canWrite)
+                @if($canAssign)
                 <button @click="showAssignModal = true"
                         class="inline-flex items-center gap-2 px-6 py-3 bg-[#1E3A5F] text-white rounded-xl text-sm font-semibold hover:bg-[#152c47] transition-colors shadow-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
@@ -86,7 +86,7 @@
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                 <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
                     <h3 class="font-semibold text-gray-800">{{ __('common.tab_protege') }}</h3>
-                    @if($canWrite)
+                    @if($canAssign)
                     <div class="flex items-center gap-2">
                         <button @click="showAssignModal = true"
                                 class="inline-flex items-center gap-1.5 text-xs text-[#1E3A5F] hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors border border-gray-200">
@@ -134,6 +134,7 @@
         @endif
 
         {{-- Assign / Edit Placement Modal --}}
+        @if($canAssign)
         <div x-show="showAssignModal" x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center p-4" style="display:none">
             <div class="fixed inset-0 bg-black/50" @click="showAssignModal = false"></div>
             <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" @click.away="showAssignModal = false">
@@ -153,15 +154,25 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">{{ __('common.implementing_company') }}</label>
-                            <select name="id_pelaksana" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]">
-                                <option value="">-- {{ __('messages.select') }} --</option>
-                                @foreach($pelaksana as $p)
-                                    <option value="{{ $p->id_pelaksana }}" {{ $talent->id_pelaksana == $p->id_pelaksana ? 'selected' : '' }}>{{ $p->nama_syarikat }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+                        @if($canOverridePelaksana)
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700 mb-1">{{ __('common.implementing_company') }}</label>
+                                <select name="id_pelaksana" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]">
+                                    <option value="">-- {{ __('messages.select') }} --</option>
+                                    @foreach($pelaksana as $p)
+                                        <option value="{{ $p->id_pelaksana }}" {{ $talent->id_pelaksana == $p->id_pelaksana ? 'selected' : '' }}>{{ $p->nama_syarikat }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @else
+                            <input type="hidden" name="id_pelaksana" value="{{ $talent->id_pelaksana }}">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700 mb-1">{{ __('common.implementing_company') }}</label>
+                                <div class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50 text-gray-700">
+                                    {{ $talent->syarikatPelaksana?->nama_syarikat ?? '-' }}
+                                </div>
+                            </div>
+                        @endif
                         <div>
                             <label class="block text-xs font-medium text-gray-700 mb-1">{{ __('common.job_title') }}</label>
                             <input type="text" name="jawatan" value="{{ is_string($talent->jawatan) ? $talent->jawatan : '' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]">
@@ -209,6 +220,7 @@
                 </form>
             </div>
         </div>
+        @endif
 
         {{-- Complete Placement Modal --}}
         <div x-show="showCompleteModal" x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center p-4" style="display:none">

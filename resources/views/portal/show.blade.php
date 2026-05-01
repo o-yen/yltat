@@ -89,7 +89,7 @@
                         <span class="bg-emerald-500/30 text-emerald-100 text-xs px-3 py-1 rounded-full font-medium">{{ __('portal.available_now') }}</span>
                     @endif
                 </div>
-                @if(auth()->check() && auth()->user()->role?->role_name === 'rakan_kolaborasi')
+                @if(auth()->check() && auth()->user()->role?->role_name === 'syarikat_pelaksana')
                     <div class="mt-4 flex flex-wrap items-center gap-3">
                         @if($requestStatus)
                             <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold

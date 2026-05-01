@@ -57,6 +57,11 @@ class SyarikatPelaksana extends Model
         return $this->hasMany(User::class, 'id_pelaksana', 'id_pelaksana');
     }
 
+    public function applicantRequests()
+    {
+        return $this->hasMany(ApplicantRequest::class, 'implementing_company_id', 'id_pelaksana');
+    }
+
     /**
      * Calculate baki peruntukan.
      */
