@@ -22,15 +22,15 @@ return new class extends Migration
                 ->on('syarikat_penempatan')
                 ->nullOnDelete();
             $table->foreignId('requested_by_user_id')->constrained('users')->cascadeOnDelete();
-            $table->string('status')->default('pending');
+            $table->string('status')->default('pending_implementation_review');
             $table->text('request_message')->nullable();
             $table->text('review_notes')->nullable();
             $table->foreignId('reviewed_by_user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('reviewed_at')->nullable();
             $table->timestamps();
 
-            $table->unique(['talent_id', 'implementing_company_id']);
             $table->unique(['talent_id', 'placement_company_id']);
+            $table->index(['talent_id', 'implementing_company_id']);
             $table->index(['implementing_company_id', 'status']);
             $table->index(['placement_company_id', 'status']);
             $table->index(['status', 'created_at']);

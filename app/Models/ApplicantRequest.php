@@ -9,6 +9,12 @@ class ApplicantRequest extends Model
 {
     use HasFactory;
 
+    public const STATUS_PENDING_IMPLEMENTATION_REVIEW = 'pending_implementation_review';
+    public const STATUS_REJECTED_BY_IMPLEMENTATION = 'rejected_by_implementation';
+    public const STATUS_PENDING_ADMIN_APPROVAL = 'pending_admin_approval';
+    public const STATUS_REJECTED_BY_ADMIN = 'rejected_by_admin';
+    public const STATUS_APPROVED = 'approved';
+
     protected $fillable = [
         'talent_id',
         'implementing_company_id',
@@ -24,6 +30,22 @@ class ApplicantRequest extends Model
     protected $casts = [
         'reviewed_at' => 'datetime',
     ];
+
+    public static function statusLabels(): array
+    {
+        return [
+            self::STATUS_PENDING_IMPLEMENTATION_REVIEW => 'Pending Implementation Review',
+            self::STATUS_REJECTED_BY_IMPLEMENTATION => 'Rejected by Implementation Company',
+            self::STATUS_PENDING_ADMIN_APPROVAL => 'Pending Admin Approval',
+            self::STATUS_REJECTED_BY_ADMIN => 'Rejected by Admin / PMO',
+            self::STATUS_APPROVED => 'Approved',
+        ];
+    }
+
+    public function getStatusLabelAttribute(): string
+    {
+        return self::statusLabels()[$this->status] ?? ucfirst(str_replace('_', ' ', (string) $this->status));
+    }
 
     public function talent()
     {

@@ -3,12 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\ApplicantRequest;
+use App\Models\SyarikatPelaksana;
 use App\Models\Talent;
 use Illuminate\Http\Request;
 
 class PublicPortalController extends Controller
 {
-    private const PUBLIC_TALENT_STATUSES = [
+    public const PUBLIC_TALENT_STATUSES = [
         'approved', 'assigned', 'in_progress', 'completed', 'alumni',
         'Aktif', 'Tamat',
     ];
@@ -51,8 +52,10 @@ class PublicPortalController extends Controller
             ->distinct()->orderBy('programme')->pluck('programme');
 
         $requestStatuses = $this->requestStatusesForTalents($talents->getCollection()->pluck('id')->all());
+        $implementingCompanies = $this->implementationCompanyOptions();
+        $statusLabels = ApplicantRequest::statusLabels();
 
-        return view('portal.index', compact('talents', 'universities', 'programmes', 'requestStatuses'));
+        return view('portal.index', compact('talents', 'universities', 'programmes', 'requestStatuses', 'implementingCompanies', 'statusLabels'));
     }
 
     public function show(Talent $talent)
@@ -65,8 +68,10 @@ class PublicPortalController extends Controller
         $certifications = $talent->certifications()->get(['certification_name', 'issuer', 'issue_date', 'expiry_date']);
 
         $requestStatus = $this->requestStatusesForTalents([$talent->id])[$talent->id] ?? null;
+        $implementingCompanies = $this->implementationCompanyOptions();
+        $statusLabels = ApplicantRequest::statusLabels();
 
-        return view('portal.show', compact('talent', 'certifications', 'requestStatus'));
+        return view('portal.show', compact('talent', 'certifications', 'requestStatus', 'implementingCompanies', 'statusLabels'));
     }
 
     public function suggestions(Request $request)
@@ -95,6 +100,12 @@ class PublicPortalController extends Controller
             ->whereNotNull('id_graduan')
             ->where('public_visibility', true)
             ->where(function ($query) {
+                $query->whereNull('id_pelaksana')->orWhere('id_pelaksana', '');
+            })
+            ->where(function ($query) {
+                $query->whereNull('id_syarikat_penempatan')->orWhere('id_syarikat_penempatan', '');
+            })
+            ->where(function ($query) {
                 $query->whereIn('status_aktif', self::PUBLIC_TALENT_STATUSES)
                     ->orWhere(function ($fallbackQuery) {
                         $fallbackQuery->whereNull('status_aktif')
@@ -109,26 +120,39 @@ class PublicPortalController extends Controller
 
         return !empty($talent->id_graduan)
             && (bool) $talent->public_visibility
+            && empty($talent->id_pelaksana)
+            && empty($talent->id_syarikat_penempatan)
             && in_array($resolvedStatus, self::PUBLIC_TALENT_STATUSES, true);
     }
 
     private function requestStatusesForTalents(array $talentIds): array
     {
-        if (empty($talentIds) || !auth()->check() || !auth()->user()->hasRole('syarikat_pelaksana')) {
+        if (empty($talentIds) || !auth()->check() || !auth()->user()->hasRole('rakan_kolaborasi')) {
             return [];
         }
 
-        $implementingCompanyId = auth()->user()->id_pelaksana;
-        if (empty($implementingCompanyId)) {
+        $placementCompanyId = auth()->user()->id_syarikat_penempatan;
+        if (empty($placementCompanyId)) {
             return [];
         }
 
         return ApplicantRequest::query()
-            ->where('implementing_company_id', $implementingCompanyId)
+            ->where('placement_company_id', $placementCompanyId)
             ->whereIn('talent_id', $talentIds)
             ->get(['talent_id', 'status'])
             ->pluck('status', 'talent_id')
             ->map(fn ($status) => (string) $status)
             ->all();
+    }
+
+    private function implementationCompanyOptions()
+    {
+        if (!auth()->check() || !auth()->user()->hasRole('rakan_kolaborasi')) {
+            return collect();
+        }
+
+        return SyarikatPelaksana::query()
+            ->orderBy('nama_syarikat')
+            ->get(['id_pelaksana', 'nama_syarikat']);
     }
 }

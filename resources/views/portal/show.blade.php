@@ -89,21 +89,30 @@
                         <span class="bg-emerald-500/30 text-emerald-100 text-xs px-3 py-1 rounded-full font-medium">{{ __('portal.available_now') }}</span>
                     @endif
                 </div>
-                @if(auth()->check() && auth()->user()->role?->role_name === 'syarikat_pelaksana')
+                @if(auth()->check() && auth()->user()->role?->role_name === 'rakan_kolaborasi')
                     <div class="mt-4 flex flex-wrap items-center gap-3">
                         @if($requestStatus)
                             <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold
                                 {{ $requestStatus === 'approved' ? 'bg-emerald-100 text-emerald-700' : '' }}
-                                {{ $requestStatus === 'rejected' ? 'bg-red-100 text-red-700' : '' }}
-                                {{ $requestStatus === 'pending' ? 'bg-amber-100 text-amber-700' : '' }}">
-                                {{ __('portal.request_status') }}: {{ ucfirst($requestStatus) }}
+                                {{ str_contains($requestStatus, 'rejected') ? 'bg-red-100 text-red-700' : '' }}
+                                {{ str_contains($requestStatus, 'pending') ? 'bg-amber-100 text-amber-700' : '' }}">
+                                {{ __('portal.request_status') }}: {{ $statusLabels[$requestStatus] ?? ucfirst(str_replace('_', ' ', $requestStatus)) }}
                             </span>
                         @endif
-                        <form method="POST" action="{{ route('portal.request-applicant', $talent) }}">
+                        <form method="POST" action="{{ route('portal.request-applicant', $talent) }}" class="flex flex-wrap items-center gap-2">
                             @csrf
+                            <select name="implementing_company_id"
+                                    class="rounded-xl border border-white/40 bg-white px-3 py-2 text-sm font-medium text-[#1E3A5F] focus:outline-none focus:ring-2 focus:ring-white"
+                                    {{ in_array($requestStatus, ['pending_implementation_review', 'pending_admin_approval', 'approved'], true) ? 'disabled' : '' }}
+                                    required>
+                                <option value="">Select implementation company</option>
+                                @foreach($implementingCompanies as $company)
+                                    <option value="{{ $company->id_pelaksana }}">{{ $company->nama_syarikat }}</option>
+                                @endforeach
+                            </select>
                             <button type="submit"
                                     class="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-[#1E3A5F] transition-colors hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60"
-                                    {{ $requestStatus === 'pending' || $requestStatus === 'approved' ? 'disabled' : '' }}>
+                                    {{ in_array($requestStatus, ['pending_implementation_review', 'pending_admin_approval', 'approved'], true) ? 'disabled' : '' }}>
                                 {{ __('portal.request_applicant') }}
                             </button>
                         </form>

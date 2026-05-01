@@ -96,6 +96,12 @@ class PortalController extends BaseMobileController
             ->whereNotNull('id_graduan')
             ->where('public_visibility', true)
             ->where(function ($query) {
+                $query->whereNull('id_pelaksana')->orWhere('id_pelaksana', '');
+            })
+            ->where(function ($query) {
+                $query->whereNull('id_syarikat_penempatan')->orWhere('id_syarikat_penempatan', '');
+            })
+            ->where(function ($query) {
                 $query->whereIn('status_aktif', self::PUBLIC_TALENT_STATUSES)
                     ->orWhere(function ($fallbackQuery) {
                         $fallbackQuery->whereNull('status_aktif')
@@ -110,6 +116,8 @@ class PortalController extends BaseMobileController
 
         return !empty($talent->id_graduan)
             && (bool) $talent->public_visibility
+            && empty($talent->id_pelaksana)
+            && empty($talent->id_syarikat_penempatan)
             && in_array($resolvedStatus, self::PUBLIC_TALENT_STATUSES, true);
     }
 }

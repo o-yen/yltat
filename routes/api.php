@@ -61,19 +61,23 @@ Route::prefix('mobile')->middleware('mobile.locale')->group(function () {
             Route::get('/logbooks', [CompanyController::class, 'logbooks']);
             Route::put('/logbooks/{id}/review', [CompanyController::class, 'reviewLogbook']);
             Route::get('/training', [CompanyController::class, 'training']);
+            Route::get('/implementation-companies', [ApplicantRequestController::class, 'implementationCompanyOptions']);
             Route::get('/applicant-requests', [ApplicantRequestController::class, 'indexForCompany']);
             Route::post('/applicant-requests', [ApplicantRequestController::class, 'storeForCompany']);
         });
 
         // Pelaksana (Implementing Company)
-Route::prefix('pelaksana')->middleware('mobile.role:syarikat_pelaksana')->group(function () {
-    Route::get('/dashboard', [PelaksanaController::class, 'dashboard']);
-    Route::get('/graduates', [PelaksanaController::class, 'graduates']);
-    Route::get('/manage-placement', [PelaksanaController::class, 'managePlacement']);
-    Route::get('/logbook', [PelaksanaController::class, 'logbook']);
-    Route::get('/kewangan', [PelaksanaController::class, 'kewangan']);
-    Route::get('/status-surat', [PelaksanaController::class, 'statusSurat']);
-    Route::get('/issues', [PelaksanaController::class, 'issues']);
+        Route::prefix('pelaksana')->middleware('mobile.role:syarikat_pelaksana')->group(function () {
+            Route::get('/dashboard', [PelaksanaController::class, 'dashboard']);
+            Route::get('/graduates', [PelaksanaController::class, 'graduates']);
+            Route::get('/manage-placement', [PelaksanaController::class, 'managePlacement']);
+            Route::get('/logbook', [PelaksanaController::class, 'logbook']);
+            Route::get('/kewangan', [PelaksanaController::class, 'kewangan']);
+            Route::get('/status-surat', [PelaksanaController::class, 'statusSurat']);
+            Route::get('/issues', [PelaksanaController::class, 'issues']);
+            Route::get('/applicant-requests', [ApplicantRequestController::class, 'indexForPelaksana']);
+            Route::post('/applicant-requests/{applicantRequest}/accept', [ApplicantRequestController::class, 'acceptForPelaksana']);
+            Route::post('/applicant-requests/{applicantRequest}/reject', [ApplicantRequestController::class, 'rejectForPelaksana']);
             Route::get('/profile', [PelaksanaController::class, 'profile']);
         });
 

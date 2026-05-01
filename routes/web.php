@@ -49,7 +49,7 @@ Route::get('/portal/daftar/berjaya', [RegistrationController::class, 'success'])
 Route::get('/portal/api/suggestions', [PublicPortalController::class, 'suggestions'])->name('portal.suggestions');
 Route::get('/portal/{talent}', [PublicPortalController::class, 'show'])->name('portal.show');
 Route::post('/portal/{talent}/request-applicant', [ApplicantRequestController::class, 'storeFromPortal'])
-    ->middleware(['auth', 'role:syarikat_pelaksana'])
+    ->middleware(['auth', 'role:rakan_kolaborasi'])
     ->name('portal.request-applicant');
 
 // ========================
@@ -227,7 +227,9 @@ Route::middleware(['auth', 'role:super_admin,pmo_admin,mindef_viewer,syarikat_pe
     Route::post('/permohonan/{talent}/reject', [ApplicationController::class, 'reject'])->name('applications.reject')->middleware('module:applications,write');
 
     // Applicant Requests
-    Route::get('/applicant-requests', [ApplicantRequestController::class, 'index'])->name('applicant-requests.index')->middleware('role:super_admin,pmo_admin,mindef_viewer,syarikat_pelaksana');
+    Route::get('/applicant-requests', [ApplicantRequestController::class, 'index'])->name('applicant-requests.index')->middleware('role:super_admin,pmo_admin,mindef_viewer,syarikat_pelaksana,rakan_kolaborasi');
+    Route::post('/applicant-requests/{applicantRequest}/accept-implementation', [ApplicantRequestController::class, 'acceptImplementation'])->name('applicant-requests.accept-implementation')->middleware('role:syarikat_pelaksana');
+    Route::post('/applicant-requests/{applicantRequest}/reject-implementation', [ApplicantRequestController::class, 'rejectImplementation'])->name('applicant-requests.reject-implementation')->middleware('role:syarikat_pelaksana');
     Route::post('/applicant-requests/{applicantRequest}/approve', [ApplicantRequestController::class, 'approve'])->name('applicant-requests.approve')->middleware('role:super_admin,pmo_admin');
     Route::post('/applicant-requests/{applicantRequest}/reject', [ApplicantRequestController::class, 'reject'])->name('applicant-requests.reject')->middleware('role:super_admin,pmo_admin');
 
