@@ -15,6 +15,65 @@ class ApplicantRequestFlowTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_guest_can_view_approved_public_talents_including_assigned_talents(): void
+    {
+        $placementCompany = $this->placementCompany('PEN_000', 'Placement Public');
+        $implementingCompany = $this->implementingCompany('PEL_000', 'Implementing Public');
+
+        $this->talent(['talent_code' => 'TAL-PUB-001', 'full_name' => 'Public Available Talent']);
+        $this->talent([
+            'talent_code' => 'TAL-PUB-002',
+            'full_name' => 'Public Assigned Talent',
+            'id_pelaksana' => $implementingCompany->id_pelaksana,
+            'id_syarikat_penempatan' => $placementCompany->id_syarikat,
+            'status' => 'assigned',
+            'status_aktif' => 'Aktif',
+        ]);
+
+        $this->get(route('portal.index'))
+            ->assertOk()
+            ->assertSee('Public Available Talent')
+            ->assertSee('Public Assigned Talent')
+            ->assertDontSee('Request Applicant');
+    }
+
+    public function test_guest_cannot_submit_applicant_request(): void
+    {
+        $implementingCompany = $this->implementingCompany('PEL_GUEST', 'Guest Target');
+        $talent = $this->talent(['talent_code' => 'TAL-GUEST']);
+
+        $this->post(route('portal.request-applicant', $talent), [
+            'implementing_company_id' => $implementingCompany->id_pelaksana,
+            'request_message' => 'Guest request',
+        ])->assertRedirect(route('login'));
+
+        $this->assertDatabaseCount('applicant_requests', 0);
+    }
+
+    public function test_admin_can_view_assigned_and_unassigned_talents_in_portal(): void
+    {
+        $placementCompany = $this->placementCompany('PEN_ADMIN', 'Placement Admin');
+        $implementingCompany = $this->implementingCompany('PEL_ADMIN', 'Implementing Admin');
+        $admin = $this->user('pmo_admin');
+
+        $this->talent(['talent_code' => 'TAL-ADM-001', 'full_name' => 'Admin Available Talent']);
+        $this->talent([
+            'talent_code' => 'TAL-ADM-002',
+            'full_name' => 'Admin Assigned Talent',
+            'id_pelaksana' => $implementingCompany->id_pelaksana,
+            'id_syarikat_penempatan' => $placementCompany->id_syarikat,
+            'status' => 'assigned',
+            'status_aktif' => 'Aktif',
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('portal.index'))
+            ->assertOk()
+            ->assertSee('Admin Available Talent')
+            ->assertSee('Admin Assigned Talent')
+            ->assertDontSee('Request Applicant');
+    }
+
     public function test_implementation_company_cannot_request_talent_from_portal(): void
     {
         $implementingCompany = $this->implementingCompany('PEL_001', 'Implementing A');
@@ -29,6 +88,11 @@ class ApplicantRequestFlowTest extends TestCase
             ->assertForbidden();
 
         $this->assertDatabaseCount('applicant_requests', 0);
+
+        $this->actingAs($user)
+            ->get(route('portal.index'))
+            ->assertOk()
+            ->assertDontSee('Test Talent');
     }
 
     public function test_placement_company_can_only_view_available_talents_in_portal(): void
@@ -55,6 +119,30 @@ class ApplicantRequestFlowTest extends TestCase
             ->assertSee('Available Talent')
             ->assertDontSee('Implementation Assigned Talent')
             ->assertDontSee('Placement Assigned Talent');
+    }
+
+    public function test_placement_company_cannot_request_already_assigned_talent(): void
+    {
+        $placementCompany = $this->placementCompany('PEN_ASSIGNED', 'Placement Assigned');
+        $otherPlacementCompany = $this->placementCompany('PEN_ASSIGNED_OTHER', 'Other Placement Assigned');
+        $implementingCompany = $this->implementingCompany('PEL_ASSIGNED', 'Implementing Assigned');
+        $user = $this->user('rakan_kolaborasi', ['id_syarikat_penempatan' => $placementCompany->id_syarikat]);
+        $talent = $this->talent([
+            'talent_code' => 'TAL-ASSIGNED',
+            'id_pelaksana' => $implementingCompany->id_pelaksana,
+            'id_syarikat_penempatan' => $otherPlacementCompany->id_syarikat,
+            'status' => 'assigned',
+            'status_aktif' => 'Aktif',
+        ]);
+
+        $this->actingAs($user)
+            ->post(route('portal.request-applicant', $talent), [
+                'implementing_company_id' => $implementingCompany->id_pelaksana,
+                'request_message' => 'Already assigned',
+            ])
+            ->assertNotFound();
+
+        $this->assertDatabaseCount('applicant_requests', 0);
     }
 
     public function test_placement_company_request_requires_implementation_then_admin_approval(): void
@@ -141,6 +229,35 @@ class ApplicantRequestFlowTest extends TestCase
             ->assertOk()
             ->assertSee('Rejected Talent')
             ->assertSee('Rejected by Implementation Company');
+    }
+
+    public function test_implementation_company_can_only_review_own_requests(): void
+    {
+        $placementCompany = $this->placementCompany('PEN_SCOPE', 'Placement Scope');
+        $ownImplementingCompany = $this->implementingCompany('PEL_SCOPE_OWN', 'Implementing Scope Own');
+        $otherImplementingCompany = $this->implementingCompany('PEL_SCOPE_OTHER', 'Implementing Scope Other');
+        $placementUser = $this->user('rakan_kolaborasi', ['id_syarikat_penempatan' => $placementCompany->id_syarikat]);
+        $ownImplementationUser = $this->user('syarikat_pelaksana', ['id_pelaksana' => $ownImplementingCompany->id_pelaksana]);
+        $otherImplementationUser = $this->user('syarikat_pelaksana', ['id_pelaksana' => $otherImplementingCompany->id_pelaksana]);
+        $talent = $this->talent(['talent_code' => 'TAL-SCOPE']);
+
+        $applicantRequest = ApplicantRequest::create([
+            'talent_id' => $talent->id,
+            'implementing_company_id' => $ownImplementingCompany->id_pelaksana,
+            'placement_company_id' => $placementCompany->id_syarikat,
+            'requested_by_user_id' => $placementUser->id,
+            'status' => ApplicantRequest::STATUS_PENDING_IMPLEMENTATION_REVIEW,
+        ]);
+
+        $this->actingAs($otherImplementationUser)
+            ->post(route('admin.applicant-requests.accept-implementation', $applicantRequest))
+            ->assertForbidden();
+
+        $this->actingAs($ownImplementationUser)
+            ->post(route('admin.applicant-requests.accept-implementation', $applicantRequest))
+            ->assertRedirect();
+
+        $this->assertSame(ApplicantRequest::STATUS_PENDING_ADMIN_APPROVAL, $applicantRequest->fresh()->status);
     }
 
     public function test_admin_rejection_after_implementation_acceptance_does_not_assign_talent(): void

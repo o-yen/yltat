@@ -61,6 +61,7 @@ Route::prefix('mobile')->middleware('mobile.locale')->group(function () {
             Route::get('/logbooks', [CompanyController::class, 'logbooks']);
             Route::put('/logbooks/{id}/review', [CompanyController::class, 'reviewLogbook']);
             Route::get('/training', [CompanyController::class, 'training']);
+            Route::get('/available-talents', [PortalController::class, 'availableForCompany']);
             Route::get('/implementation-companies', [ApplicantRequestController::class, 'implementationCompanyOptions']);
             Route::get('/applicant-requests', [ApplicantRequestController::class, 'indexForCompany']);
             Route::post('/applicant-requests', [ApplicantRequestController::class, 'storeForCompany']);

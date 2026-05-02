@@ -1,27 +1,19 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('applicant_requests', function (Blueprint $table) {
-            try {
-                $table->dropUnique('applicant_requests_talent_id_implementing_company_id_unique');
-            } catch (Throwable $e) {
-                // Older deployments may not have this unique index.
-            }
+        if ($this->indexExists('applicant_requests_talent_id_implementing_company_id_unique')) {
+            DB::statement('ALTER TABLE `applicant_requests` DROP INDEX `applicant_requests_talent_id_implementing_company_id_unique`');
+        }
 
-            try {
-                $table->index(['talent_id', 'implementing_company_id'], 'applicant_requests_talent_pelaksana_index');
-            } catch (Throwable $e) {
-                // Index may already exist on fresh installs.
-            }
-        });
+        if (!$this->indexExists('applicant_requests_talent_pelaksana_index')) {
+            DB::statement('CREATE INDEX `applicant_requests_talent_pelaksana_index` ON `applicant_requests` (`talent_id`, `implementing_company_id`)');
+        }
 
         DB::table('applicant_requests')
             ->where('status', 'pending')
@@ -42,12 +34,16 @@ return new class extends Migration
             ->whereIn('status', ['rejected_by_implementation', 'rejected_by_admin'])
             ->update(['status' => 'rejected']);
 
-        Schema::table('applicant_requests', function (Blueprint $table) {
-            try {
-                $table->dropIndex('applicant_requests_talent_pelaksana_index');
-            } catch (Throwable $e) {
-                // Index may not exist.
-            }
-        });
+        if ($this->indexExists('applicant_requests_talent_pelaksana_index')) {
+            DB::statement('ALTER TABLE `applicant_requests` DROP INDEX `applicant_requests_talent_pelaksana_index`');
+        }
+    }
+
+    private function indexExists(string $indexName): bool
+    {
+        return !empty(DB::select(
+            'SELECT 1 FROM information_schema.statistics WHERE table_schema = ? AND table_name = ? AND index_name = ? LIMIT 1',
+            [DB::getDatabaseName(), 'applicant_requests', $indexName]
+        ));
     }
 };

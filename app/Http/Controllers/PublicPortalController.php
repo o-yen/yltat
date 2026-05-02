@@ -16,7 +16,7 @@ class PublicPortalController extends Controller
 
     public function index(Request $request)
     {
-        $query = $this->publicTalentQuery();
+        $query = $this->portalTalentQueryForCurrentUser();
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -43,11 +43,11 @@ class PublicPortalController extends Controller
         $talents = $query->orderBy('full_name')->paginate(12)->withQueryString();
 
         // Get distinct universities and skills for filter dropdowns
-        $baseQuery = $this->publicTalentQuery();
+        $baseQuery = $this->portalTalentQueryForCurrentUser();
         $universities = $baseQuery->whereNotNull('university')->where('university', '!=', '')
             ->distinct()->orderBy('university')->pluck('university');
 
-        $programmes = $this->publicTalentQuery()
+        $programmes = $this->portalTalentQueryForCurrentUser()
             ->whereNotNull('programme')->where('programme', '!=', '')
             ->distinct()->orderBy('programme')->pluck('programme');
 
@@ -60,7 +60,7 @@ class PublicPortalController extends Controller
 
     public function show(Talent $talent)
     {
-        if (!$this->isPublicTalent($talent)) {
+        if (!$this->isVisiblePortalTalent($talent)) {
             abort(404);
         }
 
@@ -83,7 +83,7 @@ class PublicPortalController extends Controller
             return response()->json([]);
         }
 
-        $results = Talent::whereNotNull($field)
+        $results = $this->portalTalentQueryForCurrentUser()
             ->where($field, '!=', '')
             ->where($field, 'like', "%{$term}%")
             ->distinct()
@@ -94,17 +94,24 @@ class PublicPortalController extends Controller
         return response()->json($results);
     }
 
-    private function publicTalentQuery()
+    private function portalTalentQueryForCurrentUser()
+    {
+        if (auth()->check() && auth()->user()->hasRole('rakan_kolaborasi')) {
+            return $this->availableTalentQuery();
+        }
+
+        if (auth()->check() && auth()->user()->hasRole('syarikat_pelaksana')) {
+            return $this->basePublicTalentQuery()->whereRaw('1 = 0');
+        }
+
+        return $this->basePublicTalentQuery();
+    }
+
+    private function basePublicTalentQuery()
     {
         return Talent::query()
             ->whereNotNull('id_graduan')
             ->where('public_visibility', true)
-            ->where(function ($query) {
-                $query->whereNull('id_pelaksana')->orWhere('id_pelaksana', '');
-            })
-            ->where(function ($query) {
-                $query->whereNull('id_syarikat_penempatan')->orWhere('id_syarikat_penempatan', '');
-            })
             ->where(function ($query) {
                 $query->whereIn('status_aktif', self::PUBLIC_TALENT_STATUSES)
                     ->orWhere(function ($fallbackQuery) {
@@ -114,15 +121,44 @@ class PublicPortalController extends Controller
             });
     }
 
+    private function availableTalentQuery()
+    {
+        return $this->basePublicTalentQuery()
+            ->where(function ($query) {
+                $query->whereNull('id_pelaksana')->orWhere('id_pelaksana', '');
+            })
+            ->where(function ($query) {
+                $query->whereNull('id_syarikat_penempatan')->orWhere('id_syarikat_penempatan', '');
+            });
+    }
+
+    private function isVisiblePortalTalent(Talent $talent): bool
+    {
+        if (auth()->check() && auth()->user()->hasRole('rakan_kolaborasi')) {
+            return $this->isAvailableTalent($talent);
+        }
+
+        if (auth()->check() && auth()->user()->hasRole('syarikat_pelaksana')) {
+            return false;
+        }
+
+        return $this->isPublicTalent($talent);
+    }
+
     private function isPublicTalent(Talent $talent): bool
     {
         $resolvedStatus = $talent->status_aktif ?: $talent->status;
 
         return !empty($talent->id_graduan)
             && (bool) $talent->public_visibility
-            && empty($talent->id_pelaksana)
-            && empty($talent->id_syarikat_penempatan)
             && in_array($resolvedStatus, self::PUBLIC_TALENT_STATUSES, true);
+    }
+
+    private function isAvailableTalent(Talent $talent): bool
+    {
+        return $this->isPublicTalent($talent)
+            && empty($talent->id_pelaksana)
+            && empty($talent->id_syarikat_penempatan);
     }
 
     private function requestStatusesForTalents(array $talentIds): array
