@@ -179,6 +179,17 @@
             </a>
             @endif
 
+            {{-- Applicant Requests --}}
+            @if(in_array($role, ['super_admin', 'pmo_admin', 'mindef_viewer', 'syarikat_pelaksana', 'rakan_kolaborasi']))
+            <a href="{{ route('admin.applicant-requests.index') }}"
+               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 text-sm transition-all {{ request()->routeIs('admin.applicant-requests.*') ? 'active' : '' }}">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h8M8 14h5m-1 7l-6-6V5a2 2 0 012-2h8a2 2 0 012 2v10l-6 6z"/>
+                </svg>
+                <span>{{ __('nav.applicant_requests') }}</span>
+            </a>
+            @endif
+
             {{-- ═══════════════════════════════ FINANCE ═══════════════════════════════ --}}
             @if(!in_array($role, ['rakan_kolaborasi']))
             <div class="pt-2 pb-1">
@@ -269,16 +280,6 @@
                 <svg class="w-3 h-3 ml-auto opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                 </svg>
-            </a>
-            @endif
-
-            @if(in_array($role, ['super_admin', 'pmo_admin', 'mindef_viewer', 'syarikat_pelaksana', 'rakan_kolaborasi']))
-            <a href="{{ route('admin.applicant-requests.index') }}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 text-sm transition-all {{ request()->routeIs('admin.applicant-requests.*') ? 'active' : '' }}">
-                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h8M8 14h5m-1 7l-6-6V5a2 2 0 012-2h8a2 2 0 012 2v10l-6 6z"/>
-                </svg>
-                <span>Applicant Requests</span>
             </a>
             @endif
 
