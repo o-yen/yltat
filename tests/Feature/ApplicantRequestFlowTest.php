@@ -103,6 +103,12 @@ class ApplicantRequestFlowTest extends TestCase
 
         $this->talent(['talent_code' => 'TAL-002', 'full_name' => 'Available Talent']);
         $this->talent([
+            'talent_code' => 'TAL-002-B',
+            'full_name' => 'Available In Process Talent',
+            'status' => 'approved',
+            'status_aktif' => 'Dalam Proses',
+        ]);
+        $this->talent([
             'talent_code' => 'TAL-003',
             'full_name' => 'Implementation Assigned Talent',
             'id_pelaksana' => $implementingCompany->id_pelaksana,
@@ -117,6 +123,7 @@ class ApplicantRequestFlowTest extends TestCase
             ->get(route('portal.index'))
             ->assertOk()
             ->assertSee('Available Talent')
+            ->assertSee('Available In Process Talent')
             ->assertDontSee('Implementation Assigned Talent')
             ->assertDontSee('Placement Assigned Talent');
     }

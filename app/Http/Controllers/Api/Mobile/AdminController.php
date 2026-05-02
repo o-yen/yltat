@@ -214,6 +214,7 @@ class AdminController extends BaseMobileController
 
         $talent->update([
             'status' => 'approved',
+            'public_visibility' => true,
             'rejection_reason' => null,
             'reviewed_by' => auth()->id(),
             'reviewed_at' => now(),

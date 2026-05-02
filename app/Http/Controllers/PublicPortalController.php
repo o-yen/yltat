@@ -11,7 +11,7 @@ class PublicPortalController extends Controller
 {
     public const PUBLIC_TALENT_STATUSES = [
         'approved', 'assigned', 'in_progress', 'completed', 'alumni',
-        'Aktif', 'Tamat',
+        'Aktif', 'Tamat', 'Dalam Proses',
     ];
 
     public function index(Request $request)
