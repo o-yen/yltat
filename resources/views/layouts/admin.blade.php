@@ -110,6 +110,17 @@
             </a>
             @endif
 
+            {{-- Applicant Request --}}
+            @if(in_array($role, ['super_admin', 'pmo_admin', 'mindef_viewer', 'syarikat_pelaksana', 'rakan_kolaborasi']))
+            <a href="{{ route('admin.applicant-requests.index') }}"
+               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 text-sm transition-all {{ request()->routeIs('admin.applicant-requests.*') ? 'active' : '' }}">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h8M8 14h5m-1 7l-6-6V5a2 2 0 012-2h8a2 2 0 012 2v10l-6 6z"/>
+                </svg>
+                <span>Applicant Request</span>
+            </a>
+            @endif
+
             {{-- ═══════════════════════════════ MONITORING ═══════════════════════════════ --}}
             <div class="pt-2 pb-1">
                 <div class="px-3 text-xs font-semibold text-blue-400 uppercase tracking-wider">{{ __('nav.monitoring') }}</div>
@@ -176,17 +187,6 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                 </svg>
                 <span>{{ __('nav.status_surat') }}</span>
-            </a>
-            @endif
-
-            {{-- Applicant Requests --}}
-            @if(in_array($role, ['super_admin', 'pmo_admin', 'mindef_viewer', 'syarikat_pelaksana', 'rakan_kolaborasi']))
-            <a href="{{ route('admin.applicant-requests.index') }}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 text-sm transition-all {{ request()->routeIs('admin.applicant-requests.*') ? 'active' : '' }}">
-                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h8M8 14h5m-1 7l-6-6V5a2 2 0 012-2h8a2 2 0 012 2v10l-6 6z"/>
-                </svg>
-                <span>{{ __('nav.applicant_requests') }}</span>
             </a>
             @endif
 

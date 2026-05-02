@@ -39,5 +39,5 @@ return [
     'analytics_reporting'  => 'Analytics & Reporting',
     'system_guide'         => 'System Guide',
     'manage_placement'     => 'Manage Placement',
-    'applicant_requests'   => 'Applicant Requests',
+    'applicant_requests'   => 'Applicant Request',
 ];

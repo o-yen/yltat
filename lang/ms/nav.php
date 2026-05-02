@@ -39,5 +39,5 @@ return [
     'analytics_reporting'  => 'Analitik & Pelaporan',
     'system_guide'         => 'Panduan Sistem',
     'manage_placement'     => 'Urus Penempatan',
-    'applicant_requests'   => 'Permintaan Pemohon',
+    'applicant_requests'   => 'Applicant Request',
 ];
